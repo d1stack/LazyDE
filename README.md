@@ -134,6 +134,38 @@ docker run --rm lazyde-base:stable sh -c 'which fd lazygit rg tree-sitter git'
 
 ---
 
+## Layering your own LazyVim config
+ 
+The base image ships LazyVim's starter config. To use your own configuration, build a downstream image that copies in your `~/.config/nvim` and pre-installs whatever extra plugins, parsers, and Mason tools your config needs.
+ 
+A worked example lives in [`examples/personal/`](examples/personal/). The short version:
+ 
+```dockerfile
+FROM lazyde-base:stable
+ 
+# Replace the starter with your config
+RUN rm -rf /root/.config/nvim
+COPY nvim /root/.config/nvim
+ 
+# Sync any new plugins your config introduces
+RUN nvim --headless "+Lazy! sync" +qa
+
+# OR
+RUN nvim --headless "+Lazy! install" +qa
+ 
+# Optionally install extra parsers and Mason tools — see the example
+# for the full async-aware Mason install pattern.
+```
+ 
+Build and run:
+ 
+```bash
+cp -r ~/.config/nvim ./nvim
+docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-personal:stable
+docker build -t lazyde-personal:stable .
+```
+ 
+
 ## Roadmap
 
 The base image is the foundation. Language-specific flavors stack on top — each adds its own treesitter parsers, Mason tools, and runtime SDKs.
