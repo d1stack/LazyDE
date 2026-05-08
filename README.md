@@ -222,6 +222,6 @@ Contributions are welcome. The project is in early days, so the easiest ways to 
 
 ## License
 
-Apache — see [LICENSE](LICENSE).
+Apache — see [LICENSE](LICENSE.txt).
 
 LazyVim, Neovim, and all bundled tools retain their respective licenses.
