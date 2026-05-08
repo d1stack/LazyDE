@@ -34,11 +34,12 @@ Pull or build the base image, then run:
 
 ```bash
 # Build locally
-podman build -t lazyde-base:stable .
-# or: docker build -t lazyde-base:stable .
+docker build -t lazyde-base:stable .
+# or: podman build -t lazyde-base:stable .
 
 # Open Neovim in your current directory
-podman run --rm -it -v "$PWD:/mnt/volume" lazyde-base:stable
+docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-base:stable
+# or: podman run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-base:stable
 ```
 
 That's it. Neovim opens in `/mnt/volume` with all plugins, parsers, and Mason tools ready.
@@ -46,10 +47,11 @@ That's it. Neovim opens in `/mnt/volume` with all plugins, parsers, and Mason to
 ### Recommended shell alias
 
 ```bash
-alias lazyde='podman run --rm -it -v "$PWD:/mnt/volume" lazyde-base:stable'
+alias nvim='docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-base:stable'
+# or: alias nvim='podman run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-base:stable'
 ```
 
-Now you can `cd` into any project and just type `lazyde`.
+Now you can `cd` into any project and just type `nvim`.
 
 ---
 
@@ -103,26 +105,31 @@ The Dockerfile exposes a few build args you can override:
 Pin to a specific Neovim release:
 
 ```bash
-podman build --build-arg NVIM_VERSION=v0.10.2 -t lazyde-base:v0.10.2 .
+docker build --build-arg NVIM_VERSION=v0.10.2 -t lazyde-base:v0.10.2 .
+# or: podman build --build-arg NVIM_VERSION=v0.10.2 -t lazyde-base:v0.10.2 .
 ```
 
 Track Neovim nightly:
 
 ```bash
-podman build --build-arg NVIM_VERSION=nightly -t lazyde-base:nightly .
+docker build --build-arg NVIM_VERSION=nightly -t lazyde-base:nightly .
+# or: podman build --build-arg NVIM_VERSION=nightly -t lazyde-base:nightly .
 ```
 
 Tag both `stable` and `latest` at once:
 
 ```bash
-podman build -t lazyde-base:stable -t lazyde-base:latest .
+docker build -t lazyde-base:stable -t lazyde-base:latest .
+# or: podman build -t lazyde-base:stable -t lazyde-base:latest .
 ```
 
 ### Verifying the build
 
 ```bash
-podman run --rm lazyde-base:stable nvim --version
-podman run --rm lazyde-base:stable sh -c 'which fd lazygit rg tree-sitter git'
+docker run --rm lazyde-base:stable nvim --version
+docker run --rm lazyde-base:stable sh -c 'which fd lazygit rg tree-sitter git'
+# or: podman run --rm lazyde-base:stable nvim --version
+# or: podman run --rm lazyde-base:stable sh -c 'which fd lazygit rg tree-sitter git'
 ```
 
 ---
