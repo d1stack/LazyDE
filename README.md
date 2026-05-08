@@ -161,8 +161,8 @@ Build and run:
  
 ```bash
 cp -r ~/.config/nvim ./nvim
-docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-personal:stable
 docker build -t lazyde-personal:stable .
+docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-personal:stable
 ```
  
 
