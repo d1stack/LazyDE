@@ -165,6 +165,64 @@ docker build -t lazyde-personal:stable .
 docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-personal:stable
 ```
  
+---
+
+## Web development image (`lazyde-web`)
+
+Full-stack web image — PHP, Node, TypeScript, Vue, HTML, CSS — built on top of `lazyde-base`. Designed for projects that mix backend PHP with a JS/TS frontend, which is most of them.
+
+### What's included
+
+- **PHP** with `mbstring`, `xml`, `curl`, `zip`, `mysql`, `pgsql`, `sqlite3`, `intl`, `bcmath`, `gd`, `opcache` extensions
+- **Composer 2.8** for PHP dependency management
+- **Node** + **npm** from the official Docker image
+- **TypeScript** (`tsc`) globally installed
+- **Vue language server** + **TypeScript plugin** for Vue 3
+- **vscode-langservers-extracted** providing HTML, CSS, JSON, and ESLint LSPs
+- **Treesitter parsers**: `php`, `phpdoc`, `html`, `css`, `scss`, `javascript`, `typescript`, `tsx`, `vue`, `json`, `jsonc`, `yaml`
+- **Mason tools**: `phpactor`, `php-cs-fixer`, `phpcs`, `vtsls`, `prettier`, `eslint-lsp`, `json-lsp`
+
+### Available variants
+
+Different projects need different versions, so each PHP/Node combination has its own dedicated Dockerfile under [`web/`](web/):
+
+| Dockerfile                      | PHP | Node     | Notes                          |
+| ------------------------------- | --- | -------- | ------------------------------ |
+| `php8.3-node22.dockerfile`      | 8.3 | 22 (LTS) | **Recommended default**        |
+| `php8.3-node20.dockerfile`      | 8.3 | 20 (LTS) | Older Node LTS                 |
+| `php8.3-node24.dockerfile`      | 8.3 | 24       | Active release (LTS Oct 2026)  |
+| `php8.2-node20.dockerfile`      | 8.2 | 20 (LTS) | Legacy Laravel/Symfony         |
+| `php8.2-node22.dockerfile`      | 8.2 | 22 (LTS) |                                |
+| `php8.4-node22.dockerfile`      | 8.4 | 22 (LTS) | Latest stable PHP              |
+| `php8.4-node24.dockerfile`      | 8.4 | 24       | Cutting edge                   |
+
+Each variant produces its own tag: `lazyde-web:php<X.Y>-node<NN>`. The default variant (`php8.3-node22`) additionally gets `stable` and `latest` tags. Need a combination not listed? Copy any existing Dockerfile and search-and-replace the version strings.
+
+### Building
+
+```bash
+cd web
+docker build -f php8.3-node22.dockerfile -t lazyde-web:php8.3-node22 .
+```
+
+Or use the included Makefile:
+
+```bash
+cd web
+make list              # show available variants
+make php8.3-node22     # build a single variant
+make all               # build all seven
+```
+
+The Makefile uses `podman` by default — pass `CONTAINER_TOOL=docker` to override.
+
+### Running
+
+```bash
+docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:php8.3-node22
+```
+
+
 
 ## Roadmap
 
@@ -173,9 +231,8 @@ The base image is the foundation. Language-specific flavors stack on top — eac
 | Image              | Status     | What it adds                                              |
 | ------------------ | ---------- | --------------------------------------------------------- |
 | `lazyde-base`      | ✅ Released | Neovim + LazyVim + core tooling                           |
+| `lazyde-web`       | ✅ Released | PHP, Node, TypeScript, Vue, HTML/CSS — multiple variants  |
 | `lazyde-python`    | 🚧 Planned | Python venv, `pyright`, `ruff`, parsers (python/toml/yaml)|
-| `lazyde-web`       | 🚧 Planned | Node, TypeScript LSP, Vue LSP, parsers (ts/tsx/html/css)  |
-| `lazyde-php`       | 🚧 Planned | PHP, `phpactor`, `php-cs-fixer`, composer                 |
 | `lazyde-dotnet`    | 🚧 Planned | .NET SDK, `omnisharp`, `csharpier`, `netcoredbg`          |
 | `lazyde-systems`   | 💭 Idea    | C/C++/Rust toolchains, `clangd`, `cmake-language-server`  |
 | `lazyde-full`      | 💭 Idea    | Everything, for when you don't want to choose             |
@@ -188,13 +245,27 @@ Each downstream image will follow the same conventions: pre-installed parsers, p
 
 ```
 lazyde/
-├── Dockerfile            # The base image build
-├── README.md             # You're reading it
+├── Dockerfile                       # The base image build
+├── README.md                        # You're reading it
+├── banner.svg                       # Project banner
+├── examples/
+│   └── personal/                    # How to layer your own config on top of base
+│       ├── Dockerfile
+│       └── README.md
+├── web/                             # PHP + JS/TS development image
+│   ├── README.md
+│   ├── Makefile
+│   ├── php8.2-node20.dockerfile
+│   ├── php8.2-node22.dockerfile
+│   ├── php8.3-node20.dockerfile
+│   ├── php8.3-node22.dockerfile     # default variant
+│   ├── php8.3-node24.dockerfile
+│   ├── php8.4-node22.dockerfile
+│   └── php8.4-node24.dockerfile
 └── (future)
-    ├── python/Dockerfile
-    ├── web/Dockerfile
-    ├── php/Dockerfile
-    └── dotnet/Dockerfile
+    ├── python/
+    ├── dotnet/
+    └── systems/
 ```
 
 ---
