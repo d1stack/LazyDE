@@ -1,0 +1,95 @@
+<svg width="100%" viewBox="0 0 680 280" role="img" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+  <title>LazyDE banner</title>
+  <desc>A terminal-styled banner showing Neovim plus LazyVim plus a container, equalling LazyDE.</desc>
+
+  <style>
+    .title { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 56px; font-weight: 500; letter-spacing: -1px; }
+    .tag { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 14px; font-weight: 400; }
+    .prompt { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 14px; font-weight: 400; }
+    .winlabel { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; font-weight: 400; }
+    .iconlabel { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 10px; font-weight: 400; letter-spacing: 0.5px; }
+    .plus { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 18px; font-weight: 400; }
+
+    .frame { fill: #FAFAF7; stroke: #E5E5E0; stroke-width: 0.5; }
+    .titlebar { fill: #F0F0EB; }
+    .titleline { stroke: #E5E5E0; stroke-width: 0.5; }
+    .text-primary { fill: #1F1F1C; }
+    .text-secondary { fill: #555550; }
+    .text-tertiary { fill: #8A8A82; }
+    .text-success { fill: #2A7A3E; }
+    .icon-stroke { stroke: #555550; }
+    .neovim-fill { fill: #57A143; }
+    .lazyvim-fill { fill: #7C5BB8; }
+
+    @media (prefers-color-scheme: dark) {
+      .frame { fill: #1B1B1A; stroke: #2E2E2C; }
+      .titlebar { fill: #161615; }
+      .titleline { stroke: #2E2E2C; }
+      .text-primary { fill: #ECECE7; }
+      .text-secondary { fill: #B8B8B0; }
+      .text-tertiary { fill: #7A7A72; }
+      .text-success { fill: #6FCF7E; }
+      .icon-stroke { stroke: #B8B8B0; }
+      .neovim-fill { fill: #6FCF7E; }
+      .lazyvim-fill { fill: #A89AD8; }
+    }
+  </style>
+
+  <!-- Outer terminal frame -->
+  <rect x="40" y="20" width="600" height="240" rx="12" class="frame"/>
+
+  <!-- Title bar -->
+  <rect x="40" y="20" width="600" height="32" rx="12" class="titlebar"/>
+  <rect x="40" y="40" width="600" height="12" class="titlebar"/>
+  <line x1="40" y1="52" x2="640" y2="52" class="titleline"/>
+
+  <!-- Traffic light dots -->
+  <circle cx="60" cy="36" r="5" fill="#FF5F57"/>
+  <circle cx="78" cy="36" r="5" fill="#FEBC2E"/>
+  <circle cx="96" cy="36" r="5" fill="#28C840"/>
+
+  <!-- Window title -->
+  <text x="340" y="40" text-anchor="middle" class="winlabel text-tertiary">~/lazyde</text>
+
+  <!-- ===== Icon row: Neovim + LazyVim + Container ===== -->
+  <!-- Neovim mark (stylised N from two angled bars) -->
+  <g transform="translate(220, 80)">
+    <polygon points="0,32 0,4 6,0 8,0 26,28 26,32 22,32 6,8 6,32" class="neovim-fill"/>
+    <polygon points="32,0 32,28 26,32 24,32 6,4 6,0 10,0 26,24 26,0" class="neovim-fill"/>
+    <text x="16" y="50" text-anchor="middle" class="iconlabel text-tertiary">NEOVIM</text>
+  </g>
+
+  <!-- Plus separator -->
+  <text x="295" y="105" text-anchor="middle" class="plus text-tertiary">+</text>
+
+  <!-- LazyVim mark (stacked L shapes suggesting layered laziness) -->
+  <g transform="translate(320, 80)">
+    <path d="M 0 0 L 0 22 L 14 22 L 14 18 L 4 18 L 4 0 Z" class="lazyvim-fill"/>
+    <path d="M 10 6 L 10 28 L 24 28 L 24 24 L 14 24 L 14 6 Z" class="lazyvim-fill"/>
+    <path d="M 20 12 L 20 32 L 32 32 L 32 28 L 24 28 L 24 12 Z" class="lazyvim-fill"/>
+    <text x="16" y="50" text-anchor="middle" class="iconlabel text-tertiary">LAZYVIM</text>
+  </g>
+
+  <!-- Plus separator -->
+  <text x="395" y="105" text-anchor="middle" class="plus text-tertiary">+</text>
+
+  <!-- Container mark (isometric cube) -->
+  <g transform="translate(420, 80)" fill="none" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M 16 0 L 30 7 L 16 14 L 2 7 Z" class="icon-stroke"/>
+    <path d="M 2 7 L 2 23 L 16 30 L 16 14 Z" class="icon-stroke"/>
+    <path d="M 30 7 L 30 23 L 16 30 L 16 14 Z" class="icon-stroke"/>
+  </g>
+  <text x="436" y="130" text-anchor="middle" class="iconlabel text-tertiary">CONTAINER</text>
+
+  <!-- ===== Main title ===== -->
+  <text x="340" y="185" text-anchor="middle" class="title text-primary">LazyDE</text>
+
+  <!-- Tagline with prompt -->
+  <text x="340" y="222" text-anchor="middle" class="prompt text-secondary">
+    <tspan class="text-success">$</tspan>
+    <tspan dx="6">a containerised LazyVim distribution</tspan>
+  </text>
+
+  <!-- Footer line -->
+  <text x="340" y="248" text-anchor="middle" class="tag text-tertiary">reproducible &#183; layered &#183; isolated</text>
+</svg>
