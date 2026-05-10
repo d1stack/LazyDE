@@ -63,19 +63,27 @@ Need a combination not listed? Copy an existing Dockerfile and replace version s
 Make sure `lazyde-base:stable` is built first:
 
 ```bash
-docker build -t lazyde-base:stable ../..
+docker build -t lazyde-base:stable .
 ```
 
 Build one PHP variant:
 
 ```bash
-docker build -f php8.3-node22.dockerfile -t lazyde-web:php8.3-node22 .
+docker build -f web/php8.3-node22.dockerfile -t lazyde-web:php8.3-node22 .
 ```
 
 Build one Python variant:
 
 ```bash
-docker build -f python3.12-node22.dockerfile -t lazyde-web:python3.12-node22 .
+docker build -f web/python3.12-node22.dockerfile -t lazyde-web:python3.12-node22 .
+```
+
+Optional custom config from the repo root:
+
+```bash
+cp -r ~/.config/nvim .config/nvim
+docker build -f web/php8.3-node22.dockerfile -t lazyde-web:php8.3-node22 .
+docker build -f web/python3.12-node22.dockerfile -t lazyde-web:python3.12-node22 .
 ```
 
 ## Running
@@ -96,6 +104,8 @@ Convenient aliases:
 alias web-nvim-py='docker run --rm -it -v "$PWD:/mnt/volume" lazyde-web:python3.12-node22'
 alias web-nvim-php='docker run --rm -it -v "$PWD:/mnt/volume" lazyde-web:php8.3-node22'
 ```
+
+If `.config/nvim/init.lua` or `.config/nvim/lua/` exists, the build replaces the baked-in starter config with your own. If `.config/nvim/lazy-lock.json` exists, the build restores those exact plugin revisions. If `.config/nvim` is missing or only contains the placeholder, the stock config stays in place.
 
 ## Verifying a Python variant
 

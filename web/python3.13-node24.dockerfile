@@ -4,7 +4,7 @@
 # layered on top of lazyde-base.
 #
 # Build:
-#   podman build -f python3.13-node24.dockerfile \
+#   podman build -f web/python3.13-node24.dockerfile \
 #                -t lazyde-web:python3.13-node24 .
 #
 # Run:
@@ -98,6 +98,23 @@ RUN nvim --headless \
          vim.wait(1000); \
        end" \
     +qa
+
+COPY .config/nvim /tmp/lazyde-custom-nvim
+
+RUN set -eux; \
+    if [ -f /tmp/lazyde-custom-nvim/init.lua ] || [ -d /tmp/lazyde-custom-nvim/lua ]; then \
+      rm -rf /root/.config/nvim; \
+      cp -R /tmp/lazyde-custom-nvim /root/.config/nvim; \
+      rm -rf /root/.local/share/nvim/lazy /root/.local/state/nvim/lazy; \
+      if [ -f /root/.config/nvim/lazy-lock.json ]; then \
+        nvim --headless "+Lazy! restore" +qa; \
+      else \
+        nvim --headless "+Lazy! install" +qa; \
+      fi; \
+    else \
+      echo "No custom Neovim config found in .config/nvim; keeping stock config."; \
+    fi; \
+    rm -rf /tmp/lazyde-custom-nvim
 
 WORKDIR /mnt/volume
 CMD ["/usr/local/bin/nvim"]

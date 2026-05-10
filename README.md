@@ -30,6 +30,13 @@ A modern Neovim setup pulls hundreds of plugins, language servers, and binaries 
 
 ## Quick start
 
+Clone this repo:
+
+```bash
+git clone git@github.com:d1stack/LazyDE.git
+cd LazyDE
+```
+
 Build the base image, then run it in your current project:
 
 ```bash
@@ -39,25 +46,33 @@ docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-base:stable
 
 That's it. Neovim opens in `/mnt/volume` with all plugins, parsers, and Mason tools ready.
 
-### Use your own Neovim config
+### Stock PHP / Python images
 
 ```bash
-cp -r ~/.config/nvim examples/personal/nvim
-docker build -t lazyde-personal:stable examples/personal
-docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-personal:stable
-```
-
-This replaces the starter config with your own `nvim/` directory before building the image.
-
-### PHP / Python images
-
-```bash
-docker build -f web/php8.3-node22.dockerfile -t lazyde-web:php8.3-node22 web
+docker build -f web/php8.3-node22.dockerfile -t lazyde-web:php8.3-node22 .
 docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:php8.3-node22
 
-docker build -f web/python3.12-node22.dockerfile -t lazyde-web:python3.12-node22 web
+docker build -f web/python3.12-node22.dockerfile -t lazyde-web:python3.12-node22 .
 docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:python3.12-node22
 ```
+
+If `.config/nvim` is missing or only contains the placeholder, these images keep the baked-in starter config.
+
+### Optional custom config
+
+If you want to bake your own Neovim config into the PHP or Python image, copy it into `.config/nvim` and rebuild the same image from the repo root:
+
+```bash
+cp -r ~/.config/nvim .config/nvim
+
+docker build -f web/php8.3-node22.dockerfile -t lazyde-web:php8.3-node22 .
+docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:php8.3-node22
+
+docker build -f web/python3.12-node22.dockerfile -t lazyde-web:python3.12-node22 .
+docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:python3.12-node22
+```
+
+If `.config/nvim/init.lua` or `.config/nvim/lua/` exists, the build replaces the starter config with your own. If `.config/nvim/lazy-lock.json` exists, the build restores those exact plugin revisions. Otherwise it runs `Lazy! install`.
 
 ### Recommended shell aliases
 
@@ -152,34 +167,21 @@ docker run --rm lazyde-base:stable sh -c 'which fd lazygit rg tree-sitter git'
 
 ## Layering your own LazyVim config
  
-The base image ships LazyVim's starter config. To use your own configuration, build a downstream image that copies in your `~/.config/nvim` and pre-installs whatever extra plugins, parsers, and Mason tools your config needs.
- 
-A worked example lives in [`examples/personal/`](examples/personal/). The short version:
- 
-```dockerfile
-FROM lazyde-base:stable
- 
-# Replace the starter with your config
-RUN rm -rf /root/.config/nvim
-COPY nvim /root/.config/nvim
- 
-# Sync any new plugins your config introduces
-RUN nvim --headless "+Lazy! sync" +qa
+The base image ships LazyVim's starter config. To use your own configuration with the web images, copy it into `.config/nvim` and build the regular web image from the repo root.
 
-# OR
-RUN nvim --headless "+Lazy! install" +qa
- 
-# Optionally install extra parsers and Mason tools — see the example
-# for the full async-aware Mason install pattern.
-```
- 
-Build and run:
- 
 ```bash
-cp -r ~/.config/nvim ./nvim
-docker build -t lazyde-personal:stable .
-docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-personal:stable
+cp -r ~/.config/nvim .config/nvim
+docker build -f web/php8.3-node22.dockerfile -t lazyde-web:php8.3-node22 .
+docker build -f web/python3.12-node22.dockerfile -t lazyde-web:python3.12-node22 .
 ```
+
+Behavior:
+
+- If `.config/nvim/init.lua` or `.config/nvim/lua/` exists, the web image replaces the starter config with your own.
+- If `.config/nvim/lazy-lock.json` exists, the build runs `Lazy! restore` to keep the exact plugin revisions from your lockfile.
+- If no lockfile is present, the build runs `Lazy! install` to install the plugins declared by your config.
+- If `.config/nvim` is missing or only contains the placeholder, the build keeps the stock config already baked into the image.
+- The PHP and Python parent images keep their existing baked-in treesitter parsers and Mason tools; extra tools are not inferred from your custom config.
  
 ---
 
@@ -238,13 +240,11 @@ Each variant produces its own tag: `lazyde-web:<variant>`.
 ### Building
 
 ```bash
-cd web
-docker build -f php8.3-node22.dockerfile -t lazyde-web:php8.3-node22 .
+docker build -f web/php8.3-node22.dockerfile -t lazyde-web:php8.3-node22 .
 ```
 
 ```bash
-cd web
-docker build -f python3.12-node22.dockerfile -t lazyde-web:python3.12-node22 .
+docker build -f web/python3.12-node22.dockerfile -t lazyde-web:python3.12-node22 .
 ```
 
 ### Running
@@ -283,10 +283,6 @@ lazyde/
 ├── Dockerfile                       # The base image build
 ├── README.md                        # You're reading it
 ├── banner.svg                       # Project banner
-├── examples/
-│   └── personal/                    # How to layer your own config on top of base
-│       ├── Dockerfile
-│       └── README.md
 ├── web/                             # PHP/Python + JS/TS development variants
 │   ├── README.md
 │   ├── php8.2-node20.dockerfile
