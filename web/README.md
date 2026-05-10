@@ -78,12 +78,28 @@ Build one Python variant:
 docker build -f web/python3.12-node22.dockerfile -t lazyde-web:python3.12-node22 .
 ```
 
+Build unified PHP + Python variant (reuses prebuilt images):
+
+```bash
+docker build -f web/all.dockerfile -t lazyde-web:all .
+```
+
+Build unified variant with custom source image tags:
+
+```bash
+docker build -f web/all.dockerfile \
+  --build-arg PHP_IMAGE=lazyde-web:php8.4-node24 \
+  --build-arg PYTHON_IMAGE=lazyde-web:python3.13-node24 \
+  -t lazyde-web:all .
+```
+
 Optional custom config from the repo root:
 
 ```bash
 cp -r ~/.config/nvim .config/nvim
 docker build -f web/php8.3-node22.dockerfile -t lazyde-web:php8.3-node22 .
 docker build -f web/python3.12-node22.dockerfile -t lazyde-web:python3.12-node22 .
+docker build -f web/all.dockerfile -t lazyde-web:all .
 ```
 
 ## Running
