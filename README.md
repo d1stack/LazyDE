@@ -54,6 +54,9 @@ docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:php8.3-node2
 
 docker build -f web/python3.12-node22.dockerfile -t lazyde-web:python3.12-node22 .
 docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:python3.12-node22
+
+docker build -f web/all.dockerfile -t lazyde-web:all .
+docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:all
 ```
 
 If `.config/nvim` is missing or only contains the placeholder, these images keep the baked-in starter config.
@@ -70,9 +73,21 @@ docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:php8.3-node2
 
 docker build -f web/python3.12-node22.dockerfile -t lazyde-web:python3.12-node22 .
 docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:python3.12-node22
+
+docker build -f web/all.dockerfile -t lazyde-web:all .
+docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:all
 ```
 
 If `.config/nvim/init.lua` or `.config/nvim/lua/` exists, the build replaces the starter config with your own. If `.config/nvim/lazy-lock.json` exists, the build restores those exact plugin revisions. Otherwise it runs `Lazy! install`.
+
+Build `lazyde-web:all` with custom source image tags:
+
+```bash
+docker build -f web/all.dockerfile \
+  --build-arg PHP_IMAGE=lazyde-web:php8.4-node24 \
+  --build-arg PYTHON_IMAGE=lazyde-web:python3.13-node24 \
+  -t lazyde-web:all .
+```
 
 ### Recommended shell aliases
 
@@ -80,6 +95,7 @@ If `.config/nvim/init.lua` or `.config/nvim/lua/` exists, the build replaces the
 alias nvim='docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-base:stable'
 alias nvim-php='docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:php8.3-node22'
 alias nvim-python='docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:python3.12-node22'
+alias nvim-all='docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:all'
 ```
 
 If you prefer Podman, the same commands work with `podman build` and `podman run`.
