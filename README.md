@@ -193,7 +193,7 @@ Behavior:
 
 ### Available variants
 
-Different projects need different versions, so each combination has its own dedicated Dockerfile under [`web/`](web/).
+Different projects need different stacks, so each supported image has its own dedicated Dockerfile under [`web/`](web/), [`dotnet/`](dotnet/), [`qt/`](qt/), or [`system/`](system/).
 
 | Dockerfile                      | PHP | Node     | Notes                          |
 | ------------------------------- | --- | -------- | ------------------------------ |
@@ -214,7 +214,19 @@ Different projects need different versions, so each combination has its own dedi
 | `python3.12-node24.dockerfile`    | 3.12   | 24       |                                |
 | `python3.13-node24.dockerfile`    | 3.13   | 24       | Most current Python + Node     |
 
-Each variant produces its own tag: `lazyde-web:<variant>`.
+| Dockerfile             | .NET SDK | Runtime              | Notes            |
+| ---------------------- | -------- | -------------------- | ---------------- |
+| `dotnet8.dockerfile`   | 8.0      | ASP.NET Core 8.0     | **.NET default** |
+
+| Dockerfile          | Qt | Tooling                  | Notes              |
+| ------------------- | --- | ------------------------ | ------------------ |
+| `qt6.dockerfile`    | 6  | CMake, Ninja, PySide6    | **Qt/QML default** |
+
+| Dockerfile               | C/C++ toolchain      | Rust toolchain                       | Notes               |
+| ------------------------ | -------------------- | ------------------------------------ | ------------------- |
+| `system.dockerfile`      | Clang, LLD, CMake    | `rustc`, `cargo`, `rustfmt`, Clippy  | **Systems default** |
+
+Each web variant produces its own tag: `lazyde-web:<variant>`.
 
 ### Building
 
