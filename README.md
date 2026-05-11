@@ -46,7 +46,7 @@ docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-base:stable
 
 That's it. Neovim opens in `/mnt/volume` with all plugins, parsers, and Mason tools ready.
 
-### Stock PHP / Python images
+### Stock PHP / Python / .NET / Qt images
 
 ```bash
 docker build -f web/php8.3-node22.dockerfile -t lazyde-web:php8.3-node22 .
@@ -55,8 +55,14 @@ docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:php8.3-node2
 docker build -f web/python3.12-node22.dockerfile -t lazyde-web:python3.12-node22 .
 docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:python3.12-node22
 
-docker build -f web/all.dockerfile -t lazyde-web:all .
-docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:all
+docker build -f dotnet/dotnet8.dockerfile -t lazyde-dotnet:dotnet8 .
+docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-dotnet:dotnet8
+
+docker build -f qt/qt6.dockerfile -t lazyde-qt:qt6 .
+docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-qt:qt6
+
+docker build -f system/system.dockerfile -t lazyde-system:stable .
+docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-system:stable
 ```
 
 If `.config/nvim` is missing or only contains the placeholder, these images keep the baked-in starter config.
@@ -73,21 +79,9 @@ docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:php8.3-node2
 
 docker build -f web/python3.12-node22.dockerfile -t lazyde-web:python3.12-node22 .
 docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:python3.12-node22
-
-docker build -f web/all.dockerfile -t lazyde-web:all .
-docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:all
 ```
 
 If `.config/nvim/init.lua` or `.config/nvim/lua/` exists, the build replaces the starter config with your own. If `.config/nvim/lazy-lock.json` exists, the build restores those exact plugin revisions. Otherwise it runs `Lazy! install`.
-
-Build `lazyde-web:all` with custom source image tags:
-
-```bash
-docker build -f web/all.dockerfile \
-  --build-arg PHP_IMAGE=lazyde-web:php8.4-node24 \
-  --build-arg PYTHON_IMAGE=lazyde-web:python3.13-node24 \
-  -t lazyde-web:all .
-```
 
 ### Recommended shell aliases
 
@@ -95,7 +89,8 @@ docker build -f web/all.dockerfile \
 alias nvim='docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-base:stable'
 alias nvim-php='docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:php8.3-node22'
 alias nvim-python='docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:python3.12-node22'
-alias nvim-all='docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:all'
+alias nvim-dotnet='docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-dotnet:dotnet8'
+alias nvim-qt='docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-qt:qt6'
 ```
 
 If you prefer Podman, the same commands work with `podman build` and `podman run`.
@@ -153,21 +148,18 @@ Pin to a specific Neovim release:
 
 ```bash
 docker build --build-arg NVIM_VERSION=v0.10.2 -t lazyde-base:v0.10.2 .
-# or: podman build --build-arg NVIM_VERSION=v0.10.2 -t lazyde-base:v0.10.2 .
 ```
 
 Track Neovim nightly:
 
 ```bash
 docker build --build-arg NVIM_VERSION=nightly -t lazyde-base:nightly .
-# or: podman build --build-arg NVIM_VERSION=nightly -t lazyde-base:nightly .
 ```
 
 Tag both `stable` and `latest` at once:
 
 ```bash
 docker build -t lazyde-base:stable -t lazyde-base:latest .
-# or: podman build -t lazyde-base:stable -t lazyde-base:latest .
 ```
 
 ### Verifying the build
@@ -175,8 +167,6 @@ docker build -t lazyde-base:stable -t lazyde-base:latest .
 ```bash
 docker run --rm lazyde-base:stable nvim --version
 docker run --rm lazyde-base:stable sh -c 'which fd lazygit rg tree-sitter git'
-# or: podman run --rm lazyde-base:stable nvim --version
-# or: podman run --rm lazyde-base:stable sh -c 'which fd lazygit rg tree-sitter git'
 ```
 
 ---
@@ -200,33 +190,6 @@ Behavior:
 - The PHP and Python parent images keep their existing baked-in treesitter parsers and Mason tools; extra tools are not inferred from your custom config.
  
 ---
-
-## Web development image (`lazyde-web`)
-
-Full-stack web image variants — PHP or Python + Node, TypeScript, Vue, HTML, CSS — built on top of `lazyde-base`.
-
-### What's included
-
-For PHP variants:
-- **PHP** with `mbstring`, `xml`, `curl`, `zip`, `mysql`, `pgsql`, `sqlite3`, `intl`, `bcmath`, `gd`, `opcache` extensions
-- **Composer 2.8** for PHP dependency management
-- **Node** + **npm** from the official Docker image
-- **TypeScript** (`tsc`) globally installed
-- **Vue language server** + **TypeScript plugin** for Vue 3
-- **vscode-langservers-extracted** providing HTML, CSS, JSON, and ESLint LSPs
-- **Treesitter parsers**: `php`, `phpdoc`, `html`, `css`, `scss`, `javascript`, `typescript`, `tsx`, `vue`, `json`, `jsonc`, `yaml`
-- **Mason tools**: `phpactor`, `php-cs-fixer`, `phpcs`, `vtsls`, `prettier`, `eslint-lsp`, `json-lsp`
-
-For Python variants:
-- **Python** (`3.11`, `3.12`, `3.13`) from official python images
-- **uv**, **ruff**, **pyright**
-- **Django**, **Flask**, **FastAPI** CLIs preinstalled
-- **Node** + **npm**
-- **TypeScript** (`tsc`) globally installed
-- **Vue language server** + **TypeScript plugin** for Vue 3
-- **vscode-langservers-extracted** providing HTML, CSS, JSON, and ESLint LSPs
-- **Treesitter parsers**: `python`, `toml`, `yaml`, `html`, `css`, `scss`, `javascript`, `typescript`, `tsx`, `vue`, `json`, `jsonc`
-- **Mason tools**: `pyright`, `ruff`, `vtsls`, `prettier`, `eslint-lsp`, `json-lsp`
 
 ### Available variants
 
@@ -263,6 +226,18 @@ docker build -f web/php8.3-node22.dockerfile -t lazyde-web:php8.3-node22 .
 docker build -f web/python3.12-node22.dockerfile -t lazyde-web:python3.12-node22 .
 ```
 
+```bash
+docker build -f dotnet/dotnet8.dockerfile -t lazyde-dotnet:dotnet8 .
+```
+
+```bash
+docker build -f qt/qt6.dockerfile -t lazyde-qt:qt6 .
+```
+
+```bash
+docker build -f system/system.dockerfile -t lazyde-system:stable .
+```
+
 ### Running
 
 ```bash
@@ -273,22 +248,17 @@ docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:php8.3-node2
 docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-web:python3.12-node22
 ```
 
+```bash
+docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-dotnet:dotnet8
+```
 
+```bash
+docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-qt:qt6
+```
 
-## Roadmap
-
-The base image is the foundation. Language-specific flavors stack on top — each adds its own treesitter parsers, Mason tools, and runtime SDKs.
-
-| Image              | Status     | What it adds                                              |
-| ------------------ | ---------- | --------------------------------------------------------- |
-| `lazyde-base`      | ✅ Released | Neovim + LazyVim + core tooling                           |
-| `lazyde-web`       | ✅ Released | PHP, Node, TypeScript, Vue, HTML/CSS — multiple variants  |
-| `lazyde-python`    | ✅ Released | Python variants under `web/` with `uv`, `pyright`, `ruff`, Django/FastAPI/Flask |
-| `lazyde-dotnet`    | 🚧 Planned | .NET SDK, `omnisharp`, `csharpier`, `netcoredbg`          |
-| `lazyde-systems`   | 💭 Idea    | C/C++/Rust toolchains, `clangd`, `cmake-language-server`  |
-| `lazyde-full`      | 💭 Idea    | Everything, for when you don't want to choose             |
-
-Each downstream image will follow the same conventions: pre-installed parsers, pre-installed Mason tools, no first-launch downloads.
+```bash
+docker run --rm -it -w /mnt/volume -v "$PWD:/mnt/volume" lazyde-system:stable
+```
 
 ---
 
@@ -299,8 +269,13 @@ lazyde/
 ├── Dockerfile                       # The base image build
 ├── README.md                        # You're reading it
 ├── banner.svg                       # Project banner
+├── dotnet/
+│   └── dotnet8.dockerfile
+├── qt/
+│   └── qt6.dockerfile
+├── system/
+│   └── system.dockerfile
 ├── web/                             # PHP/Python + JS/TS development variants
-│   ├── README.md
 │   ├── php8.2-node20.dockerfile
 │   ├── php8.2-node22.dockerfile
 │   ├── php8.3-node20.dockerfile
@@ -314,32 +289,7 @@ lazyde/
 │   ├── python3.12-node24.dockerfile
 │   ├── python3.13-node22.dockerfile
 │   └── python3.13-node24.dockerfile
-└── (future)
-    ├── python/
-    ├── dotnet/
-    └── systems/
 ```
-
----
-
-## Design principles
-
-A few rules this project tries to follow:
-
-1. **Reproducible builds.** Every external download is version-pinned. No "latest from main" surprises.
-2. **No first-run work.** If a tool is meant to be available, it's installed at build time — never lazily on first launch.
-3. **Layered, not monolithic.** The base stays minimal; language tooling is opt-in via downstream images.
-4. **Multi-stage where it matters.** Build dependencies (cmake, ninja, gettext) stay in the builder stage and never bloat the final image.
-
----
-
-## Contributing
-
-Contributions are welcome. The project is in early days, so the easiest ways to help right now:
-
-- File issues for things that don't work or could be cleaner
-- Propose a downstream language image (or build one and PR it)
-- Improve build times or shrink final image sizes
 
 ---
 
