@@ -73,6 +73,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       locales \
       gcc \
       libc6-dev \
+      fzf \
     && ln -s /usr/bin/fdfind /usr/local/bin/fd \
     && rm -rf /var/lib/apt/lists/*
 
